@@ -3,12 +3,6 @@ Draw fractals from root finding iteration in R
 Keren Xu
 04/23/2020
 
-# NewtonRaphson
-
-Use NewtonRaphson root finding methods to draw some fractals for some
-**Complex
-functions**.
-
 # Create function newtonraphson
 
 ``` r
