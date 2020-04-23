@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Draw fractals from root finding iteration in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Keren Xu" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/rladies.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/rladies-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Draw fractals from root finding iteration in R
+## LA R users group: April Meeting
+### Keren Xu
+### PhD student in Epidemiology at USC
+### 2020/04/23
+
+---
+
+
+# Overview   
+### 1. Root-finding Algorithm      
+
+### 2. Newton’s Method      
+
+### 3. Secant Method           
+
+### 4. Fractals     
+
+### 5. Getting Started - Creating your fractals         
+
+---
+# Root-finding Algorithm       
+
+`\(f(a) = 0\)`  
+
+`\(f(x) = g(x)\)` ➡️ `\(h(x) = f(x) – g(x)\)`
+
+.center[
+&lt;img src="root_def.png" width="50%" height="50%" /&gt;
+]  
+
+---
+
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/3/39/GodfreyKneller-IsaacNewton-1689.jpg)
+background-position: 95% 10%  
+background-size: 20%   
+
+# Newton’s Method       
+
+
+Our curent "guess" for a: `\(x_0\)` ➡️ `\(f'(x_0) = \frac{f(x_0) - y}{x_0 - x}\)`   
+➡️ `\(f'(x_0) = \frac{f(x_0) - 0}{x_0 - x_1}\)` ➡️ `\(x_1= x_0 - \frac{f(x_0)}{f'(x_0)}\)` ➡️ `\(x_2= x_1 - \frac{f(x_1)}{f'(x_1)}\)`  
+
+.center[
+&lt;img src="newton_method.png" width="60%" height="60%" /&gt;
+]  
+---
+# Newton’s Method
+
+.center[
+![](https://upload.wikimedia.org/wikipedia/commons/e/e0/NewtonIteration_Ani.gif)]
+
+---
+# Newton’s Method
+
+&lt;b&gt;
+### In general:  
+&lt;b&gt;
+## `\(x_{n+1}= x_n - \frac{f(x_n)}{f'(x_n)}\)`
+
+
+---
+# Newton’s Method     
+
+###  Computational example:   
+
+### Find roots for `\(x^3-1\)`    
+
+```r
+F1 &lt;- function(x){
+  return(c(x^3-1, 3*(x^2))) 
+}  
+```
+---
+# Newton’s Method     
+
+###  Computational example:   
+
+
+```r
+newtonraphson &lt;- 
+  function(ftn, x0, tol = 1e-9, max.iter) {
+  # initialize 
+  x &lt;- x0
+  fx &lt;- ftn(x)
+  iter &lt;- 0
+  
+  # continue iterating until stopping conditions are met  
+  while((abs(fx[1]) &gt; tol) &amp;&amp; (iter &lt; max.iter)) {
+    x &lt;- x - fx[1]/fx[2]
+    fx &lt;- ftn(x)
+    iter &lt;- iter + 1
+    cat("At iteration", iter, "value of x is:", x, "\n")
+  }
+  
+  # output depends on the success of the algorithm  
+  if (abs(fx[1]) &gt; tol){
+    cat("Algorithm failed to converge\n")
+    return(data.frame(x0, root = NA, iter = NA))
+  } else {
+    cat("Algorithm converged\n")
+    return(data.frame(x0, root = x, iter))
+  }
+```
+
+---
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/CIRCLE_LINES.svg/594px-CIRCLE_LINES.svg.png)
+background-position: 95% 8%  
+background-size: 20%   
+# Secant Method        
+
+- Do not need to compute a derivative   
+- Need to provide two initial guesses   
+
+&lt;br&gt;
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/9/92/Secant_method.svg" width="60%" height="60%" /&gt;
+
+---
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/CIRCLE_LINES.svg/594px-CIRCLE_LINES.svg.png)
+background-position: 95% 8%  
+background-size: 20%   
+# Secant Method        
+Two initial "guesses" `\(x_0\)` and `\(x_1\)`, assuming `\(x_0\)` is the older one   
+➡️ `\(\frac{y-f(x_1)}{x-x_1} = \frac{f(x_0) - f(x_1)}{x_0 - x_1}\)`   
+➡️ so `\(x_2\)` can be found from `\(\frac{0-f(x_1)}{x_2-x_1} = \frac{f(x_0) - f(x_1)}{x_0 - x_1}\)` ➡️  `\(x_2 = x_1 - f(x_1)\frac{x_0 - x_1}{f(x_0) - f(x_1)}\)`
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/9/92/Secant_method.svg" width="60%" height="60%" /&gt;
+
+---
+
+# Secant Method     
+&lt;b&gt;
+### In general:  
+&lt;b&gt;
+## `\(x_{n+1} = x_n - f(x_n)\frac{x_n - x_{n-1}}{f(x_n) - f(x_{n-1})}\)`
+
+---
+
+# Secant Method       
+
+###  Computational example:     
+
+
+```r
+secant &lt;- function(ftn, x0, x1, tol = 1e-9, max.iter) {
+  # initialize 
+  x_n0 &lt;- x0
+  x_n1 &lt;- x1
+  ftn_n0 &lt;- ftn(x_n0)
+  ftn_n1 &lt;- ftn(x_n1)
+  iter &lt;- 0
+  
+  # continue iterating until stopping conditions are met  
+  while((abs(ftn_n1) &gt; tol) &amp;&amp; (iter &lt; max.iter)) {
+    x_n2 &lt;- x_n1 - ftn_n1*(x_n1 - x_n0)/(ftn_n1 - ftn_n0)
+    x_n0 &lt;- x_n1
+    ftn_n0 &lt;- ftn(x_n0)
+    x_n1 &lt;- x_n2
+    ftn_n1 &lt;- ftn(x_n1)
+    iter &lt;- iter + 1
+    cat("At iteration", iter, "value of x is:", x_n1, "\n")
+  }
+  
+  return(c(x_n1, iter))
+}
+```
+
+---
+
+# Fractals      
+
+### Root finding functions can also be applied to find roots for **complex functions**, which are functions of **complex numbers**. 
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Complex_number_illustration.svg/1024px-Complex_number_illustration.svg.png" width="50%" height="50%" /&gt;
+---
+# Fractals   
+
+### Each root has a **basin of attraction** in the complex plane, which is a set of all **initial guesses** that cause the method to converge to that particular root. 
+
+### These sets can be mapped into images. The boundaries of the basins of attraction are called **fractals**.    
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mandelbrot_sequence_new.gif" width="50%" height="50%" /&gt;
+
+---
+# Fractals 
+
+## Julia set 
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Julia_set%2C_plotted_with_Matplotlib.svg/1920px-Julia_set%2C_plotted_with_Matplotlib.svg.png" width="50%" height="50%" /&gt;
+
+---
+# Fractals 
+
+## Mandelbrot set 
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Mandel_zoom_00_mandelbrot_set.jpg/1920px-Mandel_zoom_00_mandelbrot_set.jpg" width="50%" height="50%" /&gt;
+---
+# Fractals 
+
+## Burning ship fractals  
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Burning_Ship_Fractal_Zoom-out_64.gif" width="50%" height="50%" /&gt;
+---
+# Fractals 
+
+## Newton's fractals
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/9/9b/FRACT008.png" width="50%" height="50%" /&gt;
+---
+# Summary  
+
+### 1. Root-finding algorithm: `\(h(x) = f(x) – g(x) = 0\)` 📐
+
+### 2. Most common: Newton’s Method and Secant method   🍎
+
+### 3. Complex numbers and fractals 👩‍🎨       
+
+---
+# Get Started - Creating your fractals 
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+.center[
+![](https://media1.tenor.com/images/58863bf1b0b453857aa0a3e390eac3c6/tenor.gif?itemid=5675661)  
+]
+
+---
+# Recommended readings  
+-  Introduction to scientific programming and simulation using r, by Andrew P. Robinson, Owen Jones, and Robert Maillardet [[link](http://www.tf.uns.ac.rs/~omorr/radovan_omorjan_003_prII/r-examples/spuRs/spuRs-2ed.pdf)] 
+
+- Newton fractal wiki page  [[link](https://en.wikipedia.org/wiki/Newton_fractal)]
+
+---
+
+class: center, middle,inverse  
+# Thanks for attending!   
+
+😄
+
+### Keep in touch [twitter @kerenxuepi](https://twitter.com/kerenxuepi)  
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+Slides created via **RLadies** **xaringan** slide theme
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
