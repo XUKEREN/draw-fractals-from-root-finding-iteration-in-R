@@ -3,6 +3,27 @@ Draw fractals from root finding iteration in R
 Keren Xu
 04/23/2020
 
+The work in this repository was prepared for [LA R USER MEETUP](https://www.meetup.com/Los-Angeles-R-Users-Group-Data-Science/events/270120172/).  
+
+Recommended color palettes
+
+https://github.com/EmilHvitfeldt/r-color-palettes  
+
+https://github.com/karthik/wesanderson
+
+
+```r
+library(tidyverse)
+library(purrr)
+library(furrr)
+library(RColorBrewer)
+library(cartography)
+library(Polychrome)
+library(Cairo)
+library(wesanderson)
+```
+
+
 # Create function newtonraphson
 
 ``` r
