@@ -3,17 +3,17 @@ Draw fractals from root finding iteration in R
 Keren Xu
 04/23/2020
 
-# The work in this repository was prepared for [LA R USER MEETUP](https://www.meetup.com/Los-Angeles-R-Users-Group-Data-Science/events/270120172/).    
+**The work in this repository was prepared for [LA R USER MEETUP](https://www.meetup.com/Los-Angeles-R-Users-Group-Data-Science/events/270120172/)**   
 
-## [Slides](https://xukeren.rbind.io/slides/20200423/slides#1)
+**[Slides](https://xukeren.rbind.io/slides/20200423/slides#1)**
 
-## Recommended color palettes
+**Recommended color palettes**
 
 https://github.com/EmilHvitfeldt/r-color-palettes  
 
 https://github.com/karthik/wesanderson
 
-## Loading packages
+**Loading packages**
 ```r
 library(tidyverse)
 library(purrr)
