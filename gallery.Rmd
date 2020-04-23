@@ -18,9 +18,6 @@ library(Cairo)
 library(wesanderson)
 ```
 
-# NewtonRaphson   
-
-Use NewtonRaphson root finding methods to draw some fractals for some **Complex functions**.  
 
 # Create function newtonraphson  
 ```{r}
