@@ -5,7 +5,7 @@ Keren Xu
 
 **The work in this repository was prepared for [LA R USER MEETUP](https://www.meetup.com/Los-Angeles-R-Users-Group-Data-Science/events/270120172/)**
 
-**[Slides](https://xukeren.github.io/Draw-fractals-from-root-finding-iteration-in-R/slides#1)**
+**[Slides](https://xukeren.github.io/draw-fractals-from-root-finding-iteration-in-R/slides#1)**
 
 **Recommended color palettes**
 
